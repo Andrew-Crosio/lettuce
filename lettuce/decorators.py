@@ -16,8 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from lettuce.core import STEP_REGISTRY
 
+import six
+
+
 def _is_step_sentence(sentence):
-    return isinstance(sentence, str) or isinstance(sentence, basestring)
+    return isinstance(sentence, six.string_types)
+
 
 def step(step_func_or_sentence):
     """Decorates a function, so that it will become a new step
@@ -33,7 +37,7 @@ def step(step_func_or_sentence):
         >>> from models import contact
         >>>
         >>> # First Example
-        >>> step(r'Given I delete the contact "(?P<name>.*)" from my address book')
+        >>> @step(r'Given I delete the contact "(?P<name>.*)" from my address book')
         ... def given_i_do_something(step, name):
         ...     contact.delete_by_name(name)
         ...     assert step.sentence == 'Given I delete the contact "John Doe" from my address book'

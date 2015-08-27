@@ -51,6 +51,8 @@ from lettuce.plugins import (
 from lettuce import fs
 from lettuce import exceptions
 
+import six
+
 try:
     from colorama import init as ms_windows_workaround
     ms_windows_workaround()
@@ -72,14 +74,19 @@ __all__ = [
 try:
     terrain = fs.FileSystem._import("terrain")
     reload(terrain)
-except Exception, e:
+except Exception as e:
     if not "No module named terrain" in str(e):
         string = 'Lettuce has tried to load the conventional environment ' \
             'module "terrain"\nbut it has errors, check its contents and ' \
             'try to run lettuce again.\n\nOriginal traceback below:\n\n'
 
         sys.stderr.write(string)
-        sys.stderr.write(exceptions.traceback.format_exc(e))
+
+        if six.PY3:
+            sys.stderr.write(exceptions.traceback.format_exception(type(e), e, None))
+        else:
+            sys.stderr.write(exceptions.traceback.format_exc(e))
+
         raise SystemExit(1)
 
 
@@ -170,8 +177,8 @@ class Runner(object):
         # that we don't even want to test.
         try:
             self.loader.find_and_load_step_definitions()
-        except StepLoadingError, e:
-            print "Error loading step definitions:\n", e
+        except StepLoadingError as e:
+            six.print_("Error loading step definitions:\n", e)
             return
 
         call_hook('before', 'all')
@@ -186,18 +193,18 @@ class Runner(object):
                                 random=self.random,
                                 failfast=self.failfast))
 
-        except exceptions.LettuceSyntaxError, e:
+        except exceptions.LettuceSyntaxError as e:
             sys.stderr.write(e.msg)
             failed = True
         except:
             if not self.failfast:
                 e = sys.exc_info()[1]
-                print "Died with %s" % str(e)
+                six.print_("Died with %s" % str(e))
                 traceback.print_exc()
             else:
-                print
-                print ("Lettuce aborted running any more tests "
-                       "because was called with the `--failfast` option")
+                six.print_()
+                six.print_("Lettuce aborted running any more tests "
+                      "because was called with the `--failfast` option")
 
             failed = True
 

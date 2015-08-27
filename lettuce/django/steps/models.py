@@ -10,7 +10,7 @@ from django.core.management.color import no_style
 from django.db import connection
 from django.db.models.loading import get_models
 from django.utils.functional import curry
-from functools import wraps
+import six
 
 from lettuce import step
 
@@ -23,8 +23,8 @@ def _models_generator():
     Build a hash of model verbose names to models
     """
     for model in get_models():
-        yield (unicode(model._meta.verbose_name), model)
-        yield (unicode(model._meta.verbose_name_plural), model)
+        yield (six.text_type(model._meta.verbose_name), model)
+        yield (six.text_type(model._meta.verbose_name_plural), model)
 
 
 MODELS = dict(_models_generator())
@@ -41,7 +41,7 @@ def creates_models(model):
 
     def decorated(func):
 
-        @wraps(func)
+        @six.wraps(func)
         @writes_models(model)
         def wrapped(data, field):
             if field:
@@ -91,7 +91,7 @@ def hash_data(hash_):
     """
     res = {}
     for key, value in hash_.items():
-        if type(value) in (str, unicode):
+        if type(value) in six.string_types:
             if value == "true":
                 value = True
             elif value == "false":
@@ -183,20 +183,23 @@ def _dump_model(model, attrs=None):
     """
 
     for field in model._meta.fields:
-        print '%s=%s,' % (field.name, str(getattr(model, field.name))),
+        six.print_('%s=%s,' % (field.name, str(getattr(model, field.name))), end=' ')
 
     if attrs is not None:
         for attr in attrs:
-            print '%s=%s,' % (attr, str(getattr(model, attr))),
+            six.print_('%s=%s,' % (attr, str(getattr(model, attr))), end=' ')
 
     for field in model._meta.many_to_many:
         vals = getattr(model, field.name)
-        print '%s=%s (%i),' % (
-            field.name,
-            ', '.join(map(str, vals.all())),
-            vals.count()),
+        six.print_(
+            '%s=%s (%i),' % (
+                field.name,
+                ', '.join(map(str, vals.all())),
+                vals.count()
+            )
+       )
 
-    print
+    six.print_()
 
 
 def models_exist(model, data, queryset=None):
@@ -215,7 +218,7 @@ def models_exist(model, data, queryset=None):
         for hash_ in data:
             fields = {}
             extra_attrs = {}
-            for k, v in hash_.iteritems():
+            for k, v in six.iteritems(hash_):
                 if k.startswith('@'):
                     # this is an attribute
                     extra_attrs[k[1:]] = v
@@ -228,7 +231,7 @@ def models_exist(model, data, queryset=None):
             if filtered.exists():
                 for obj in filtered.all():
                     if all(getattr(obj, k) == v
-                            for k, v in extra_attrs.iteritems()):
+                            for k, v in six.iteritems(extra_attrs)):
                         match = True
                         break
 
@@ -237,11 +240,11 @@ def models_exist(model, data, queryset=None):
                 model.__name__, hash_, filtered.query)
 
     except AssertionError as exc:
-        print exc
+        six.print_(exc)
         failed += 1
 
     if failed:
-        print "Rows in DB are:"
+        six.print_("Rows in DB are:")
         for model in queryset.all():
             _dump_model(model, extra_attrs.keys())
 

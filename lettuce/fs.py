@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import re
 import os
-import imp
 import sys
 import codecs
 import fnmatch
@@ -25,6 +24,17 @@ import zipfile
 from functools import wraps
 from glob import glob
 from os.path import abspath, join, dirname, curdir, exists
+
+import six
+
+try:
+    import imp
+except (ImportError, DeprecationWarning):
+    import importlib as imp
+
+
+if sys.version_info.major >= 3:
+    reload = imp.reload
 
 
 class FeatureLoader(object):
@@ -48,9 +58,14 @@ class FeatureLoader(object):
             to_load = FileSystem.filename(filename, with_extension=False)
             try:
                 module = __import__(to_load)
-            except ValueError, e:
+            except ValueError as e:
                 import traceback
-                err_msg = traceback.format_exc(e)
+
+                if six.PY3:
+                    err_msg = traceback.format_exception(type(e), e, None)
+                else:
+                    err_msg = traceback.format_exc(e)
+
                 if 'empty module name' in err_msg.lower():
                     continue
                 else:
@@ -144,7 +159,7 @@ class FileSystem(object):
         """
         try:
             os.makedirs(path)
-        except OSError, e:
+        except OSError as e:
             # ignore if path already exists
             if e.errno not in (17, ):
                 raise e

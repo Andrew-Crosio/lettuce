@@ -22,12 +22,17 @@ from lettuce import strings
 from lettuce.terrain import after
 from lettuce.terrain import before
 from lettuce.terrain import world
+import six
 
 
-def wrt(what):
-    if isinstance(what, unicode):
-        what = what.encode('utf-8')
-    sys.stdout.write(what)
+if six.PY3:
+    def wrt(what):
+        sys.stdout.write(what)
+else:
+    def wrt(what):
+        if isinstance(what, unicode):
+            what = what.encode('utf-8')
+        sys.stdout.write(what)
 
 
 @after.each_step

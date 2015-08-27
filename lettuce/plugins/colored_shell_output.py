@@ -18,6 +18,8 @@ import os
 import re
 import sys
 
+import six
+
 from lettuce import core
 from lettuce import strings
 from lettuce import terminal
@@ -27,10 +29,13 @@ from lettuce.terrain import before
 from lettuce.terrain import world
 
 
-def wrt(what):
-    if isinstance(what, unicode):
-        what = what.encode('utf-8')
-    sys.stdout.write(what)
+if six.PY3:
+    wrt = sys.stdout.write
+else:
+    def wrt(what):
+        if isinstance(what, unicode):
+            what = what.encode('utf-8')
+        sys.stdout.write(what)
 
 
 def wrap_file_and_line(string, start, end):

@@ -17,6 +17,7 @@
 import os
 import sys
 import django
+import six
 from distutils.version import StrictVersion
 from optparse import make_option
 from django.conf import settings
@@ -184,7 +185,7 @@ class Command(BaseCommand):
         if run_server:
             try:
                 server.start()
-            except LettuceServerException, e:
+            except LettuceServerException as e:
                 raise SystemExit(e)
 
         os.environ['SERVER_NAME'] = str(server.address)
@@ -219,13 +220,17 @@ class Command(BaseCommand):
                 results.append(result)
                 if not result or result.steps != result.steps_passed:
                     failed = True
-        except SystemExit, e:
+        except SystemExit as e:
             failed = e.code
 
-        except Exception, e:
+        except Exception as e:
             failed = True
             import traceback
-            traceback.print_exc(e)
+
+            if six.PY3:
+                traceback.print_exception(type(e), e, None)
+            else:
+                traceback.print_exc(e)
 
         finally:
             summary = SummaryTotalResults(results)

@@ -17,12 +17,13 @@
 
 import datetime
 import sys
-from StringIO import StringIO
 
 from lettuce.terrain import before, after
 
 from subunit.v2 import StreamResultToBytes
 from subunit.iso8601 import Utc
+
+import six
 
 
 def open_file(filename):
@@ -61,8 +62,8 @@ def enable(filename=None):
     def before_scenario(scenario):
 
         # create redirects for stdout and stderr
-        scenario.stdout = StringIO()
-        scenario.stderr = StringIO()
+        scenario.stdout = six.StringIO()
+        scenario.stderr = six.StringIO()
         try:
             test_tags = scenario.tags
         except AttributeError:

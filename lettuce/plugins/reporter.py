@@ -1,15 +1,21 @@
 import sys
 
+import six
+
 
 class Reporter(object):
     def __init__(self):
         self.failed_scenarios = []
         self.scenarios_and_its_fails = {}
 
-    def wrt(self, what):
-        if isinstance(what, unicode):
-            what = what.encode('utf-8')
-        sys.stdout.write(what)
+    if six.PY3:
+        def wrt(self, what):
+            sys.stdout.write(what)
+    else:
+        def wrt(self, what):
+            if isinstance(what, unicode):
+                what = what.encode('utf-8')
+            sys.stdout.write(what)
 
     def store_failed_step(self, step):
         if step.failed and step.scenario not in self.failed_scenarios:

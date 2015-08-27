@@ -20,15 +20,24 @@ from lettuce.terrain import after
 from lettuce.terrain import before
 from xml.dom import minidom
 from lettuce.strings import utf8_string
+import six
 
 
-def wrt_output(filename, content):
-    f = open(filename, "w")
-    if isinstance(content, unicode):
-        content = content.encode('utf-8')
+if six.PY3:
+    def wrt_output(filename, content):
+        with open(filename, "w") as f:
+            f.write(content)
+else:
+    def wrt_output(filename, content):
+        f = open(filename, "w")
 
-    f.write(content)
-    f.close()
+        try:
+            if isinstance(content, unicode):
+                content = content.encode('utf-8')
+
+            f.write(content)
+        finally:
+            f.close()
 
 
 def write_xml_doc(filename, doc):

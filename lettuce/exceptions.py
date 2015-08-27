@@ -18,6 +18,8 @@ import traceback
 import sys
 from lettuce.strings import utf8_string
 
+import six
+
 
 class NoDefinitionFound(Exception):
     """ Exception raised by lettuce.core.Step, when trying to solve a
@@ -46,9 +48,13 @@ class ReasonToFail(object):
         else:
             msg = exc.args[0] if exc.args else ''
 
-        if isinstance(msg, basestring):
+        if isinstance(msg, six.string_types):
             self.cause = utf8_string(msg)
-        self.traceback = utf8_string(traceback.format_exc(exc))
+
+        if six.PY3:
+            self.traceback = traceback.format_exception(type(exc), exc, None)
+        else:
+            self.traceback = utf8_string(traceback.format_exc(exc))
 
 
 class LettuceSyntaxError(SyntaxError):

@@ -19,15 +19,20 @@ import re
 import threading
 import traceback
 
+import six
 from lettuce.exceptions import StepLoadingError
+
 
 world = threading.local()
 world._set = False
 
 
 def _function_matches(one, other):
-    return (os.path.abspath(one.func_code.co_filename) == os.path.abspath(other.func_code.co_filename) and
-            one.func_code.co_firstlineno == other.func_code.co_firstlineno)
+    one_func_code = six.get_function_code(one)
+    other_func_code = six.get_function_code(other)
+
+    return (os.path.abspath(one_func_code.co_filename) == os.path.abspath(other_func_code.co_filename) and
+            one_func_code.co_firstlineno == other_func_code.co_firstlineno)
 
 
 class CallbackDict(dict):
@@ -39,6 +44,7 @@ class CallbackDict(dict):
         for name, action_dict in self.items():
             for callback_list in action_dict.values():
                 callback_list[:] = []
+
 
 class StepDict(dict):
     def load(self, step, func):
@@ -62,14 +68,19 @@ class StepDict(dict):
         func = getattr(func, '__func__', func)
         sentence = getattr(func, '__doc__', None)
         if sentence is None:
-            sentence = func.func_name.replace('_', ' ')
+            try:
+                func_name = func.func_name
+            except AttributeError:
+                func_name = func.__name__
+
+            sentence = func_name.replace('_', ' ')
             sentence = sentence[0].upper() + sentence[1:]
         return sentence
 
     def _assert_is_step(self, step, func):
         try:
             re.compile(step)
-        except re.error, e:
+        except re.error as e:
             raise StepLoadingError("Error when trying to compile:\n"
                                    "  regex: %r\n"
                                    "  for function: %s\n"
@@ -133,10 +144,15 @@ def call_hook(situation, kind, *args, **kw):
     for callback in CALLBACK_REGISTRY[kind][situation]:
         try:
             callback(*args, **kw)
-        except Exception, e:
-            print "=" * 1000
-            traceback.print_exc(e)
-            print
+        except Exception as e:
+            print("=" * 1000)
+
+            if six.PY3:
+                traceback.print_exception(type(e), e, None)
+            else:
+                traceback.print_exc(e)
+
+            print()
             raise
 
 
