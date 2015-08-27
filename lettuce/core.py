@@ -528,7 +528,7 @@ class Step(object):
         # Select only lines that aren't end-to-end whitespace and aren't tags
         # Tags could be included as steps if the first scenario following a background is tagged
         # This then causes the test to fail, because lettuce looks for the step's definition (which doesn't exist)
-        lines = filter(lambda x: not (REP.only_whitespace.match(x) or re.match(r'^\s*@', x)), lines)
+        lines = list(filter(lambda x: not (REP.only_whitespace.match(x) or re.match(r'^\s*@', x)), lines))
 
         step_strings = []
         in_multiline = False
@@ -742,7 +742,7 @@ class Scenario(object):
                             reasons_to_fail)
 
             skip = lambda x: x not in steps_passed and x not in steps_undefined and x not in steps_failed
-            steps_skipped = filter(skip, all_steps)
+            steps_skipped = list(filter(skip, all_steps))
 
             return ScenarioResult(
                 self,
@@ -870,8 +870,8 @@ class Background(object):
                  with_file=None,
                  original_string=None,
                  language=None):
-        self.steps = map(self.add_self_to_step, Step.many_from_lines(
-            lines, with_file, original_string))
+        self.steps = list(map(self.add_self_to_step, Step.many_from_lines(
+            lines, with_file, original_string)))
 
         self.feature = feature
         self.original_string = original_string

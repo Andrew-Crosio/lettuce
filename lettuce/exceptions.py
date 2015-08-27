@@ -52,7 +52,7 @@ class ReasonToFail(object):
             self.cause = utf8_string(msg)
 
         if six.PY3:
-            self.traceback = traceback.format_exception(type(exc), exc, None)
+            self.traceback = ''.join(traceback.format_exception(type(exc), exc, None))
         else:
             self.traceback = utf8_string(traceback.format_exc(exc))
 

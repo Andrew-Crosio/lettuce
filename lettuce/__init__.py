@@ -73,7 +73,12 @@ __all__ = [
 
 try:
     terrain = fs.FileSystem._import("terrain")
-    reload(terrain)
+
+    # This occurs when there is a problem with the path on Python 3.
+    try:
+        reload(terrain)
+    except AttributeError:
+        pass
 except Exception as e:
     if not "No module named terrain" in str(e):
         string = 'Lettuce has tried to load the conventional environment ' \
@@ -83,7 +88,7 @@ except Exception as e:
         sys.stderr.write(string)
 
         if six.PY3:
-            sys.stderr.write(exceptions.traceback.format_exception(type(e), e, None))
+            sys.stderr.write(''.join(exceptions.traceback.format_exception(type(e), e, None)))
         else:
             sys.stderr.write(exceptions.traceback.format_exc(e))
 

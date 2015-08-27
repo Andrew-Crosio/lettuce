@@ -49,7 +49,7 @@ def find_management_module(app_name):
     # of the app_name but the project directory itself isn't on the path.
     try:
         f, path, descr = imp.find_module(part,path)
-    except ImportError,e:
+    except ImportError as e:
         if os.path.basename(os.getcwd()) != part:
             raise e
 
@@ -299,7 +299,7 @@ class ManagementUtility(object):
 
         # subcommand
         if cword == 1:
-            print ' '.join(sorted(filter(lambda x: x.startswith(curr), subcommands)))
+            six.print_(' '.join(sorted(filter(lambda x: x.startswith(curr), subcommands))))
         # subcommand options
         # special case: the 'help' subcommand has no options
         elif cwords[0] in subcommands and cwords[0] != 'help':

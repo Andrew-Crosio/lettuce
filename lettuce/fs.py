@@ -62,7 +62,7 @@ class FeatureLoader(object):
                 import traceback
 
                 if six.PY3:
-                    err_msg = traceback.format_exception(type(e), e, None)
+                    err_msg = '\n'.join(traceback.format_exception(type(e), e, None))
                 else:
                     err_msg = traceback.format_exc(e)
 

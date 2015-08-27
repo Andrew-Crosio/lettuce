@@ -4,6 +4,7 @@ from optparse import OptionParser, NO_DEFAULT
 import imp
 
 import django
+import six
 from django.core.management.base import BaseCommand, CommandError, handle_default_options
 from django.utils.importlib import import_module
 
@@ -299,7 +300,7 @@ class ManagementUtility(object):
 
         # subcommand
         if cword == 1:
-            print ' '.join(sorted(filter(lambda x: x.startswith(curr), subcommands)))
+            six.print_(' '.join(sorted(filter(lambda x: x.startswith(curr), subcommands))))
         # subcommand options
         # special case: the 'help' subcommand has no options
         elif cwords[0] in subcommands and cwords[0] != 'help':
