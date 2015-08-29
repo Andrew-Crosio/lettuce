@@ -260,7 +260,7 @@ def parse_as_json(lines):
             values = list(map(deline, values))
 
             for idx in range(rng_idx):
-                json_map[idx].values()[0].append(values[idx])
+                list(json_map[idx].values())[0].append(values[idx])
     return non_unique_keys, json_map
 
 
