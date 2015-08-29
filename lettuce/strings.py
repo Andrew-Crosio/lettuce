@@ -250,14 +250,14 @@ def parse_as_json(lines):
     if lines:
         first_line = lines.pop(0)
         non_unique_keys = split_wisely(first_line, u"|", True)
-        non_unique_keys = map(deline, non_unique_keys)
+        non_unique_keys = list(map(deline, non_unique_keys))
         rng_idx = len(non_unique_keys)
         json_map = list(non_unique_keys)
         for idx in range(rng_idx):
             json_map[idx] = dict([(non_unique_keys[idx], [])])
         for line in lines:
             values = split_wisely(line, u"|", True)
-            values = map(deline, values)
+            values = list(map(deline, values))
 
             for idx in range(rng_idx):
                 json_map[idx].values()[0].append(values[idx])
