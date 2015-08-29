@@ -170,11 +170,11 @@ def parse_hashes(lines, json_format=None):
     if lines:
         first_line = lines.pop(0)
         keys = split_wisely(first_line, u"|", True)
-        keys = map(deline, keys)
+        keys = list(map(deline, keys))
 
         for line in lines:
             values = split_wisely(line, u"|", True)
-            values = map(deline, values)
+            values = list(map(deline, values))
             hashes.append(dict(zip(keys, values)))
 
     return keys, hashes
